@@ -112,3 +112,153 @@
     </div>
   </div>
 </div>
+<script>
+(()=>{
+  function setupGame() {
+    function initializeGame() {
+      (function () {
+
+        // ==========================================
+        // КОНСТАНТЫ
+        // ==========================================
+
+        const COLS = 10;
+        const ROWS = 20;
+        const CELL = 28; // px
+
+        // Цвета фигур (синяя палитра + акценты)
+        const COLORS = [
+          null,
+          '#2563eb', // I — синий
+          '#7c3aed', // O — фиолетовый
+          '#0891b2', // T — циан
+          '#059669', // S — зелёный
+          '#dc2626', // Z — красный
+          '#d97706', // J — жёлтый
+          '#db2777', // L — розовый
+        ];
+
+        // Формы фигур (каждая — набор поворотов)
+        const PIECES = [
+          null,
+          // I
+          [
+            [[0,0],[1,0],[2,0],[3,0]],
+            [[0,0],[0,1],[0,2],[0,3]],
+          ],
+          // O
+          [
+            [[0,0],[1,0],[0,1],[1,1]],
+          ],
+          // T
+          [
+            [[0,0],[1,0],[2,0],[1,1]],
+            [[0,0],[0,1],[0,2],[1,1]],
+            [[1,0],[0,1],[1,1],[2,1]],
+            [[1,0],[0,1],[1,1],[1,2]],
+          ],
+          // S
+          [
+            [[1,0],[2,0],[0,1],[1,1]],
+            [[0,0],[0,1],[1,1],[1,2]],
+          ],
+          // Z
+          [
+            [[0,0],[1,0],[1,1],[2,1]],
+            [[1,0],[0,1],[1,1],[0,2]],
+          ],
+          // J
+          [
+            [[0,0],[0,1],[1,1],[2,1]],
+            [[0,0],[1,0],[0,1],[0,2]],
+            [[0,0],[1,0],[2,0],[2,1]],
+            [[1,0],[1,1],[0,2],[1,2]],
+          ],
+          // L
+          [
+            [[2,0],[0,1],[1,1],[2,1]],
+            [[0,0],[0,1],[0,2],[1,2]],
+            [[0,0],[1,0],[2,0],[0,1]],
+            [[0,0],[1,0],[1,1],[1,2]],
+          ],
+        ];
+
+        // Очки за линии
+        const SCORE_TABLE = [0, 100, 300, 500, 800];
+
+        // ==========================================
+        // СОСТОЯНИЕ ИГРЫ
+        // ==========================================
+
+        let gameState = {
+          board: [],
+          current: null,     // { type, rotation, x, y }
+          next: null,
+          score: 0,
+          level: 1,
+          lines: 0,
+          isRunning: false,
+          isPaused: false,
+          isGameOver: false,
+          dropInterval: null,
+          lastDrop: 0,
+        };
+
+        // ==========================================
+        // DOM-ЭЛЕМЕНТЫ
+        // ==========================================
+
+        const widget       = document.getElementById('tetris-widget');
+        const canvas       = widget.querySelector('#tetris-canvas');
+        const nextCanvas   = widget.querySelector('#next-canvas');
+        const ctx          = canvas.getContext('2d');
+        const nextCtx      = nextCanvas.getContext('2d');
+        const scoreEl      = widget.querySelector('#score-display');
+        const levelEl      = widget.querySelector('#level-display');
+        const linesEl      = widget.querySelector('#lines-display');
+        const newGameBtn   = widget.querySelector('#new-game-btn');
+        const pauseBtn     = widget.querySelector('#pause-btn');
+        const resumeBtn    = widget.querySelector('#resume-btn');
+        const playAgainBtn = widget.querySelector('#play-again-btn');
+        const startGameBtn = widget.querySelector('#start-game-btn');
+        const startScreen  = widget.querySelector('#start-screen');
+        const pauseScreen  = widget.querySelector('#pause-screen');
+        const gameoverScreen = widget.querySelector('#gameover-screen');
+        const goScore      = widget.querySelector('#go-score');
+        const goLevel      = widget.querySelector('#go-level');
+        const goLines      = widget.querySelector('#go-lines');
+
+        // ==========================================
+        // РАЗМЕРЫ КАНВАСА
+        // ==========================================
+
+        // Пересчитывает размер канваса под текущую ширину виджета и высоту окна
+        function resizeCanvas() {
+          const maxH = Math.min(window.innerHeight * 0.65, 560);
+          const cellSize = Math.floor(Math.min(maxH / ROWS, (widget.offsetWidth * 0.55) / COLS));
+          const cellActual = Math.max(20, Math.min(cellSize, 30));
+
+          canvas.width  = COLS * cellActual;
+          canvas.height = ROWS * cellActual;
+
+          const nextCellSize = Math.round(cellActual * 0.8);
+          nextCanvas.width  = 4 * nextCellSize + 8;
+          nextCanvas.height = 4 * nextCellSize + 8;
+
+          canvas._cell = cellActual;
+          nextCanvas._cell = nextCellSize;
+        }
+
+        // ==========================================
+        // ДОСКА
+        // ==========================================
+
+        // Создаёт пустую игровую доску: двумерный массив ROWS × COLS, заполненный нулями
+        function createBoard() {
+          return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+        }
+        
+      })
+    }}
+})
+</script>
