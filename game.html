@@ -449,6 +449,127 @@
           rafId = null;
         }
 
+        // ==========================================
+        // ОТРИСОВКА
+        // ==========================================
+
+        // Рисует одну клетку с объёмным эффектом: основной цвет + блик сверху + тень снизу
+        function drawCell(context, x, y, colorIndex, cellSize, alpha = 1) {
+          if (!colorIndex) return;
+          const color = COLORS[colorIndex];
+          const px = x * cellSize;
+          const py = y * cellSize;
+          const r = Math.max(2, cellSize * 0.12);
+
+          context.globalAlpha = alpha;
+
+          // Фон клетки
+          context.fillStyle = color;
+          context.beginPath();
+          context.roundRect(px + 1, py + 1, cellSize - 2, cellSize - 2, r);
+          context.fill();
+
+          // Блик (светлая грань сверху-слева)
+          context.fillStyle = 'rgba(255,255,255,0.35)';
+          context.beginPath();
+          context.roundRect(px + 2, py + 2, cellSize - 4, Math.floor(cellSize * 0.3), r);
+          context.fill();
+
+          // Тёмная грань снизу-справа
+          context.fillStyle = 'rgba(0,0,0,0.18)';
+          context.beginPath();
+          context.roundRect(px + 1, py + cellSize - Math.floor(cellSize * 0.25), cellSize - 2, Math.floor(cellSize * 0.22), [0, 0, r, r]);
+          context.fill();
+
+          context.globalAlpha = 1;
+        }
+
+        // Вычисляет Y-координату, до которой упадёт текущая фигура (для отрисовки тени)
+        function getGhostY() {
+          let ghost = { ...gameState.current };
+          while (isValid({ ...ghost, y: ghost.y + 1 }, gameState.board)) {
+            ghost.y++;
+          }
+          return ghost.y;
+        }
+
+        // Перерисовывает всё игровое поле: фон, сетку, зафиксированные блоки, тень и текущую фигуру
+        function drawBoard() {
+          const cell = canvas._cell || CELL;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // Фон поля
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Сетка
+          ctx.strokeStyle = 'rgba(37, 99, 235, 0.06)';
+          ctx.lineWidth = 0.5;
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+              ctx.strokeRect(c * cell, r * cell, cell, cell);
+            }
+          }
+
+          // Занятые клетки
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+              if (gameState.board[r][c]) {
+                drawCell(ctx, c, r, gameState.board[r][c], cell);
+              }
+            }
+          }
+
+          // Призрак (тень падения)
+          if (gameState.current && gameState.isRunning) {
+            const ghostY = getGhostY();
+            if (ghostY !== gameState.current.y) {
+              const shape = PIECES[gameState.current.type][gameState.current.rotation % PIECES[gameState.current.type].length];
+              shape.forEach(([dx, dy]) => {
+                drawCell(ctx, gameState.current.x + dx, ghostY + dy, gameState.current.type, cell, 0.2);
+              });
+            }
+          }
+
+          // Текущая фигура
+          if (gameState.current && gameState.isRunning) {
+            const shape = PIECES[gameState.current.type][gameState.current.rotation % PIECES[gameState.current.type].length];
+            shape.forEach(([dx, dy]) => {
+              if (gameState.current.y + dy >= 0) {
+                drawCell(ctx, gameState.current.x + dx, gameState.current.y + dy, gameState.current.type, cell);
+              }
+            });
+          }
+        }
+
+        // Отрисовывает следующую фигуру в боковой панели, центрируя её в превью-канвасе
+        function drawNext() {
+          const cell = nextCanvas._cell || 22;
+          nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+          nextCtx.fillStyle = '#f8fafc';
+          nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+          if (!gameState.next) return;
+
+          const shape = PIECES[gameState.next.type][0];
+          const minX = Math.min(...shape.map(([x]) => x));
+          const minY = Math.min(...shape.map(([, y]) => y));
+          const maxX = Math.max(...shape.map(([x]) => x));
+          const maxY = Math.max(...shape.map(([, y]) => y));
+          const offX = Math.floor((4 - (maxX - minX + 1)) / 2) - minX;
+          const offY = Math.floor((4 - (maxY - minY + 1)) / 2) - minY;
+
+          shape.forEach(([dx, dy]) => {
+            drawCell(nextCtx, dx + offX, dy + offY, gameState.next.type, cell);
+          });
+        }
+
+        // Обновляет оба канваса за один вызов: основное поле и превью следующей фигуры
+        function drawAll() {
+          drawBoard();
+          drawNext();
+        }
+
       })
     }}
 })
