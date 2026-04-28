@@ -748,6 +748,46 @@
         }, { passive: false });
 
 
+        // ==========================================
+        // АВТООЧИСТКА
+        // ==========================================
+
+        let cleanupExecuted = false;
+        let containerChecker = null;
+
+        // Освобождает ресурсы: останавливает цикл, снимает слушатели и удаляет виджет из DOM
+        function performCleanup() {
+          if (cleanupExecuted) return;
+          cleanupExecuted = true;
+
+          stopLoop();
+          if (containerChecker) clearInterval(containerChecker);
+
+          newGameBtn.removeEventListener('click', initGame);
+          playAgainBtn.removeEventListener('click', initGame);
+          pauseBtn.removeEventListener('click', togglePause);
+          resumeBtn.removeEventListener('click', togglePause);
+          startGameBtn.removeEventListener('click', initGame);
+
+          const w = document.getElementById('tetris-widget');
+          if (w) w.remove();
+          if (window.destroyTetris) delete window.destroyTetris;
+        }
+
+        containerChecker = setInterval(() => {
+          const w = document.getElementById('tetris-widget');
+          if (!w || !document.body.contains(w)) performCleanup();
+        }, 1000);
+
+        window.destroyTetris = performCleanup;
+
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ — показ стартового экрана
+        // ==========================================
+
+        resizeCanvas();
+        drawBoard(); // Рисуем пустое поле под стартовым экраном
+
       })
     }}
 })
