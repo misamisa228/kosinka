@@ -354,6 +354,64 @@
           gameoverScreen.classList.remove('hidden');
         }
 
+        // ==========================================
+        // УПРАВЛЕНИЕ
+        // ==========================================
+
+        // Сдвигает фигуру на одну клетку влево, если позиция допустима
+        function moveLeft() {
+          const moved = { ...gameState.current, x: gameState.current.x - 1 };
+          if (isValid(moved, gameState.board)) { gameState.current = moved; drawAll(); }
+        }
+
+        // Сдвигает фигуру на одну клетку вправо, если позиция допустима
+        function moveRight() {
+          const moved = { ...gameState.current, x: gameState.current.x + 1 };
+          if (isValid(moved, gameState.board)) { gameState.current = moved; drawAll(); }
+        }
+
+        // Сдвигает фигуру на одну строку вниз вручную и начисляет 1 очко за каждый шаг
+        function moveDown() {
+          const moved = { ...gameState.current, y: gameState.current.y + 1 };
+          if (isValid(moved, gameState.board)) {
+            gameState.current = moved;
+            gameState.score += 1;
+            updateStats();
+            drawAll();
+          }
+        }
+
+        // Поворачивает фигуру на 90°; при упоре в стену пробует сдвинуть (wall kick)
+        function rotate() {
+          const rotations = PIECES[gameState.current.type].length;
+          const rotated = { ...gameState.current, rotation: (gameState.current.rotation + 1) % rotations };
+          // Wall kick: попробуем сдвинуть на ±1 если нельзя повернуть на месте
+          if (isValid(rotated, gameState.board)) {
+            gameState.current = rotated;
+          } else if (isValid({ ...rotated, x: rotated.x + 1 }, gameState.board)) {
+            gameState.current = { ...rotated, x: rotated.x + 1 };
+          } else if (isValid({ ...rotated, x: rotated.x - 1 }, gameState.board)) {
+            gameState.current = { ...rotated, x: rotated.x - 1 };
+          }
+          drawAll();
+        }
+
+        // Мгновенно опускает фигуру до дна, начисляя 2 очка за каждую пройденную строку
+        function hardDrop() {
+          while (true) {
+            const moved = { ...gameState.current, y: gameState.current.y + 1 };
+            if (isValid(moved, gameState.board)) {
+              gameState.current = moved;
+              gameState.score += 2;
+            } else break;
+          }
+          updateStats();
+          placePiece();
+          clearLines();
+          spawnPiece();
+          drawAll();
+        }
+
       })
     }}
 })
