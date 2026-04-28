@@ -1,0 +1,114 @@
+<!-- HTML КОНТЕЙНЕР -->
+<div id="tetris-widget" class="tetris-container" tabindex="-1">
+  <div class="game-header">
+    <h1 class="game-title">Тетрис</h1>
+    <p class="game-subtitle">Классическая игра</p>
+  </div>
+
+  <div class="game-content">
+    <div class="stats-container">
+      <div class="stat-card">
+        <span class="stat-label">Счёт:</span>
+        <span id="score-display" class="stat-value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Уровень:</span>
+        <span id="level-display" class="stat-value">1</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Линии:</span>
+        <span id="lines-display" class="stat-value">0</span>
+      </div>
+    </div>
+
+    <div class="game-board">
+      <canvas id="tetris-canvas"></canvas>
+
+      <div class="side-panel">
+        <div class="panel-card">
+          <div class="panel-title">Следующая</div>
+          <canvas id="next-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="new-game-btn" class="btn btn-primary">Новая игра</button>
+      <button id="pause-btn" class="btn btn-secondary">Пауза</button>
+    </div>
+
+    <div class="mobile-controls">
+      <div class="mobile-row">
+        <button class="btn-mobile rotate" id="btn-rotate">↻</button>
+      </div>
+      <div class="mobile-row">
+        <button class="btn-mobile" id="btn-left">◀</button>
+        <button class="btn-mobile" id="btn-down">▼</button>
+        <button class="btn-mobile" id="btn-right">▶</button>
+      </div>
+      <div class="mobile-row">
+        <button class="btn-mobile" id="btn-drop" style="width:130px;border-radius:28px;font-size:0.85rem;font-weight:700;">БРОСИТЬ ↓</button>
+      </div>
+    </div>
+
+    <!-- Экран паузы -->
+    <div id="pause-screen" class="overlay-screen hidden">
+      <div class="overlay-card">
+        <div class="overlay-title">⏸ Пауза</div>
+        <div class="overlay-subtitle">Игра приостановлена</div>
+        <button id="resume-btn" class="btn btn-primary" style="width:100%">Продолжить</button>
+      </div>
+    </div>
+
+    <!-- Экран Game Over -->
+    <div id="gameover-screen" class="overlay-screen hidden">
+      <div class="overlay-card">
+        <div class="overlay-title">🎮 Игра окончена</div>
+        <div class="overlay-subtitle">Хороший результат!</div>
+        <div class="overlay-stats">
+          <div class="overlay-stat-row">
+            <span class="overlay-stat-label">Счёт:</span>
+            <span id="go-score" class="overlay-stat-value">0</span>
+          </div>
+          <div class="overlay-stat-row">
+            <span class="overlay-stat-label">Уровень:</span>
+            <span id="go-level" class="overlay-stat-value">1</span>
+          </div>
+          <div class="overlay-stat-row">
+            <span class="overlay-stat-label">Линии:</span>
+            <span id="go-lines" class="overlay-stat-value">0</span>
+          </div>
+        </div>
+        <button id="play-again-btn" class="btn btn-primary" style="width:100%">Играть снова</button>
+      </div>
+    </div>
+
+    <!-- Стартовый экран -->
+    <div id="start-screen" class="start-screen">
+      <div class="start-content">
+        <div class="rules-container">
+          <h3 class="rules-title">Правила игры</h3>
+          <div class="rules-grid">
+            <div class="rule-item">
+              <span class="rule-icon">🎯</span>
+              <span class="rule-text">Складывайте фигуры так, чтобы заполнять горизонтальные линии целиком</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-icon">⌨️</span>
+              <span class="rule-text">← → — движение, ↑ или Z — поворот, ↓ — ускорение, Пробел — мгновенное падение</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-icon">📈</span>
+              <span class="rule-text">С каждым уровнем скорость падения увеличивается</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-icon">📱</span>
+              <span class="rule-text">На мобильных используйте кнопки внизу экрана</span>
+            </div>
+          </div>
+        </div>
+        <button id="start-game-btn" class="start-button">Начать игру</button>
+      </div>
+    </div>
+  </div>
+</div>
