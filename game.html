@@ -630,6 +630,124 @@
         }
 
 
+        // ==========================================
+        // ОБРАБОТЧИКИ КНОПОК
+        // ==========================================
+
+        newGameBtn.addEventListener('click', initGame);
+        playAgainBtn.addEventListener('click', initGame);
+        pauseBtn.addEventListener('click', togglePause);
+        resumeBtn.addEventListener('click', togglePause);
+        startGameBtn.addEventListener('click', () => {
+          startScreen.classList.add('hidden');
+          initGame();
+        });
+
+        // Мобильные кнопки
+        widget.querySelector('#btn-left').addEventListener('click', () => {
+          if (gameState.isRunning && !gameState.isPaused) moveLeft();
+        });
+        widget.querySelector('#btn-right').addEventListener('click', () => {
+          if (gameState.isRunning && !gameState.isPaused) moveRight();
+        });
+        widget.querySelector('#btn-down').addEventListener('click', () => {
+          if (gameState.isRunning && !gameState.isPaused) moveDown();
+        });
+        widget.querySelector('#btn-rotate').addEventListener('click', () => {
+          if (gameState.isRunning && !gameState.isPaused) rotate();
+        });
+        widget.querySelector('#btn-drop').addEventListener('click', () => {
+          if (gameState.isRunning && !gameState.isPaused) hardDrop();
+        });
+
+        // ==========================================
+        // КЛАВИАТУРА
+        // ==========================================
+
+        const isEditableTarget = (el) => {
+          if (!el) return false;
+          if (el.isContentEditable) return true;
+          const tag = (el.tagName || '').toLowerCase();
+          return tag === 'input' || tag === 'textarea' || tag === 'select';
+        };
+
+        document.addEventListener('keydown', (e) => {
+          if (!widget.contains(document.activeElement) && document.activeElement !== document.body) return;
+          if (isEditableTarget(e.target)) return;
+          if (!gameState.isRunning || gameState.isGameOver) return;
+
+          switch (e.code) {
+            case 'ArrowLeft':
+            case 'KeyA':
+              e.preventDefault();
+              if (!gameState.isPaused) moveLeft();
+              break;
+            case 'ArrowRight':
+            case 'KeyD':
+              e.preventDefault();
+              if (!gameState.isPaused) moveRight();
+              break;
+            case 'ArrowDown':
+            case 'KeyS':
+              e.preventDefault();
+              if (!gameState.isPaused) moveDown();
+              break;
+            case 'ArrowUp':
+            case 'KeyW':
+            case 'KeyZ':
+              e.preventDefault();
+              if (!gameState.isPaused) rotate();
+              break;
+            case 'Space':
+              e.preventDefault();
+              if (!gameState.isPaused) hardDrop();
+              break;
+            case 'Escape':
+            case 'KeyP':
+              e.preventDefault();
+              togglePause();
+              break;
+          }
+        });
+
+        // ==========================================
+        // ТАЧ-УПРАВЛЕНИЕ (свайпы)
+        // ==========================================
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchStartTime = Date.now();
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          if (!gameState.isRunning || gameState.isPaused) return;
+
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          const dt = Date.now() - touchStartTime;
+          const absDx = Math.abs(dx);
+          const absDy = Math.abs(dy);
+
+          if (absDx < 10 && absDy < 10 && dt < 250) {
+            // Тап — поворот
+            rotate();
+          } else if (absDy > absDx && dy > 40) {
+            // Свайп вниз — быстрое падение
+            hardDrop();
+          } else if (absDx > absDy) {
+            if (dx > 20) moveRight();
+            else if (dx < -20) moveLeft();
+          }
+        }, { passive: false });
+
+
       })
     }}
 })
