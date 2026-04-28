@@ -582,6 +582,54 @@
         }
 
 
+        // ==========================================
+        // СТАРТ / ПАУЗА / РЕСТАРТ
+        // ==========================================
+
+        // Сбрасывает всё состояние и запускает новую игру с чистой доской
+        function initGame() {
+          stopLoop();
+          gameoverScreen.classList.add('hidden');
+          pauseScreen.classList.add('hidden');
+
+          gameState.board      = createBoard();
+          gameState.score      = 0;
+          gameState.level      = 1;
+          gameState.lines      = 0;
+          gameState.isRunning  = true;
+          gameState.isPaused   = false;
+          gameState.isGameOver = false;
+          gameState.next       = randomPiece();
+
+          resizeCanvas();
+          spawnPiece();
+          updateStats();
+          drawAll();
+          startLoop();
+
+          pauseBtn.textContent = 'Пауза';
+        }
+
+        // Переключает паузу: останавливает/возобновляет цикл и показывает/скрывает оверлей
+        function togglePause() {
+          if (!gameState.isRunning || gameState.isGameOver) return;
+
+          if (gameState.isPaused) {
+            gameState.isPaused = false;
+            pauseScreen.classList.add('hidden');
+            pauseBtn.textContent = 'Пауза';
+            lastTime = performance.now();
+            dropCounter = 0;
+            rafId = requestAnimationFrame(gameLoop);
+          } else {
+            gameState.isPaused = true;
+            stopLoop();
+            pauseScreen.classList.remove('hidden');
+            pauseBtn.textContent = 'Продолжить';
+          }
+        }
+
+
       })
     }}
 })
