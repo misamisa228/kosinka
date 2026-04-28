@@ -282,6 +282,78 @@
         }
 
 
+        // ==========================================
+        // ЛОГИКА ИГРЫw
+        // ==========================================
+
+        // Фиксирует текущую фигуру на доске — записывает её тип в соответствующие ячейки
+        function placePiece() {
+          getCells(gameState.current).forEach(({ x, y }) => {
+            if (y >= 0) gameState.board[y][x] = gameState.current.type;
+          });
+        }
+
+        // Удаляет заполненные линии, сдвигает доску вниз и начисляет очки
+        function clearLines() {
+          let cleared = 0;
+          for (let row = ROWS - 1; row >= 0; row--) {
+            if (gameState.board[row].every(cell => cell !== 0)) {
+              gameState.board.splice(row, 1);
+              gameState.board.unshift(new Array(COLS).fill(0));
+              cleared++;
+              row++; // проверяем ту же позицию снова
+            }
+          }
+          if (cleared > 0) {
+            gameState.lines += cleared;
+            gameState.score += SCORE_TABLE[cleared] * gameState.level;
+            gameState.level = Math.floor(gameState.lines / 10) + 1;
+            updateStats();
+          }
+        }
+
+        // Возвращает интервал падения (мс) — чем выше уровень, тем меньше задержка
+        function getDropSpeed() {
+          return Math.max(80, 1000 - (gameState.level - 1) * 90);
+        }
+
+        // Сдвигает фигуру на одну строку вниз; если упёрлась — фиксирует и спавнит следующую
+        function dropPiece() {
+          if (!gameState.isRunning || gameState.isPaused) return;
+
+          const moved = { ...gameState.current, y: gameState.current.y + 1 };
+          if (isValid(moved, gameState.board)) {
+            gameState.current = moved;
+          } else {
+            placePiece();
+            clearLines();
+            spawnPiece();
+          }
+          drawAll();
+        }
+
+        // Выводит следующую фигуру на поле и готовит новую следующую; при невозможности — game over
+        function spawnPiece() {
+          gameState.current = gameState.next || randomPiece();
+          gameState.next = randomPiece();
+
+          if (!isValid(gameState.current, gameState.board)) {
+            endGame();
+          }
+        }
+
+        // Останавливает игру и показывает экран с итоговой статистикой
+        function endGame() {
+          gameState.isRunning  = false;
+          gameState.isGameOver = true;
+          stopLoop();
+
+          goScore.textContent = gameState.score;
+          goLevel.textContent = gameState.level;
+          goLines.textContent = gameState.lines;
+          gameoverScreen.classList.remove('hidden');
+        }
+
       })
     }}
 })
