@@ -570,6 +570,18 @@
           drawNext();
         }
 
+        // ==========================================
+        // СТАТИСТИКА
+        // ==========================================
+
+        // Синхронизирует отображение счёта, уровня и числа линий с текущим состоянием игры
+        function updateStats() {
+          scoreEl.textContent = gameState.score;
+          levelEl.textContent = gameState.level;
+          linesEl.textContent = gameState.lines;
+        }
+
+
       })
     }}
 })
