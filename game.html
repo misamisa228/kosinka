@@ -412,6 +412,43 @@
           drawAll();
         }
 
+        // ==========================================
+        // ИГРОВОЙ ЦИКЛ (requestAnimationFrame)
+        // ==========================================
+
+        let rafId = null;
+        let lastTime = 0;
+        let dropCounter = 0;
+
+        // Основной цикл игры на requestAnimationFrame: отсчитывает время и вызывает dropPiece по таймеру
+        function gameLoop(time = 0) {
+          if (!gameState.isRunning || gameState.isPaused) return;
+
+          const delta = time - lastTime;
+          lastTime = time;
+          dropCounter += delta;
+
+          if (dropCounter >= getDropSpeed()) {
+            dropCounter = 0;
+            dropPiece();
+          }
+
+          rafId = requestAnimationFrame(gameLoop);
+        }
+
+        // Запускает игровой цикл, сбрасывая счётчик времени и накопленную задержку
+        function startLoop() {
+          lastTime = performance.now();
+          dropCounter = 0;
+          rafId = requestAnimationFrame(gameLoop);
+        }
+
+        // Останавливает игровой цикл, отменяя текущий кадр анимации
+        function stopLoop() {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+
       })
     }}
 })
