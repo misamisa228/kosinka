@@ -258,6 +258,30 @@
           return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
         }
         
+        // ==========================================
+        // ФИГУРЫ
+        // ==========================================
+
+        // Генерирует случайную новую фигуру и помещает её в верхний центр поля
+        function randomPiece() {
+          const type = Math.floor(Math.random() * 7) + 1;
+          return { type, rotation: 0, x: Math.floor(COLS / 2) - 2, y: 0 };
+        }
+
+        // Возвращает абсолютные координаты всех клеток фигуры на доске
+        function getCells(piece) {
+          const shape = PIECES[piece.type][piece.rotation % PIECES[piece.type].length];
+          return shape.map(([dx, dy]) => ({ x: piece.x + dx, y: piece.y + dy }));
+        }
+
+        // Проверяет, что все клетки фигуры находятся в пределах поля и не перекрываются с занятыми
+        function isValid(piece, board) {
+          return getCells(piece).every(({ x, y }) =>
+            x >= 0 && x < COLS && y >= 0 && y < ROWS && !board[y][x]
+          );
+        }
+
+
       })
     }}
 })
